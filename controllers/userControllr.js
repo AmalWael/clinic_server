@@ -106,6 +106,7 @@ const { valid2, Msg } = await isPasswordValid(password);
     // password hashing by bcrypt package
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    
     const newUser = new User({
         Name,
         email,
