@@ -7,12 +7,14 @@ import genrateJwt from '../utlits/genrateJwt.js';
 import nodemailer from "nodemailer";
 import Joi from "joi";
 import emailValidator from 'email-validator';
+import  validator from 'validator';
 import { token } from 'morgan';
 import path from "path";
 import multer from "multer";
 import cloudinary from 'cloudinary';
 import fs from "fs";
 import {cloudinaryUploadImage,cloudinaryRemoveImage} from "../utlits/cloudinary.js";
+import { check } from 'express-validator';
 const __filename = path.basename(import.meta.url);
 const __dirname = path.dirname(__filename);
 export async function uplodePhoto(req, res) {
@@ -48,14 +50,29 @@ export async function uplodePhoto(req, res) {
 
     fs.unlinkSync(imagePath);
 }
+
 export async function register(req, res, next)  {
-    const { Name, email, password } = req.body;
+    const { Name, email, password , passwordconfirm } = req.body;
     const oldUser = await User.findOne({ email: email });
     
     if (oldUser) {
         return res.status(400).json({ error: "User already exists" });
 
     }
+async function isNameValid(Name)
+{
+    if (validator.isEmpty(Name)) {
+        return { valid1: false, msg: 'name is require' };
+      }
+      const length = validator.isLength(Name,3,9)
+      if(!length){
+        return { valid1: false, msg: 'Name must be greater than 3 character and less than 9 character' };
+      }
+     else{ return { valid1: true };
+}} 
+const { valid1, msg } = await isNameValid(Name);    
+        if (!valid1) {return res.status(400).send({ msg })};
+
     async function isEmailValid(email) {
         const isValid = emailValidator.validate(email);
         if (!isValid) {
@@ -67,17 +84,33 @@ export async function register(req, res, next)  {
         }
         return { valid: true };
       } 
-      const { valid, reason } = await isEmailValid(email);    
-
+      const { valid, reason } = await isEmailValid(email);  
     if (!valid) {return res.status(400).send({
         reason })};
+       
+        async function isPasswordValid(password)
+{
+    if (validator.isEmpty(password)) {
+        return { valid2: false, Msg: 'password is require' };
+      }
+      const length = validator.isLength(password,8,20)
+      if(!length){
+        return { valid2: false, Msg: 'password must be greater than 8 character and less than 9 character' };
+      }
+    
+      return { valid2: true };
+} 
+const { valid2, Msg } = await isPasswordValid(password);    
+        if (!valid2) {return res.status(400).send({ Msg })};
+
     // password hashing by bcrypt package
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const newUser = new User({
         Name,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        
     });
     const token = await genrateJwt({email: newUser.email, id: newUser._id})
     newUser.token = token;
@@ -107,7 +140,7 @@ export async function login(req, res, next)  {
         const token = await genrateJwt({email: user.email, id: user._id})
         await User.updateOne({_id:user._id }, {$set:{token}})
         user.token = token
-        return res.json({ status: httpStatusText.SUCCESS,  msg: {user} });
+        return res.json({ status: httpStatusText.SUCCESS,  msg: "The success of the login  process" });
     } else {
         
         return res.status(500).json({ error: "The password is incorrect" });
@@ -118,6 +151,7 @@ export async function update(req, res)  {
     const userId = req.params.userId; 
     const updateUser = await User.updateOne({_id: userId}, {$set:{...req.body}});
     return res.status(200).json({status: httpStatusText.SUCCESS,  msg:{updateUser}})};
+
 export async function deleteUser(req, res) {
         await User.deleteOne ({_id: req.params.userId});
         res.status(200).json({status: httpStatusText.SUCCESS,  msg: null});

@@ -6,10 +6,10 @@ const userModel = new Schema ({
     
     Name: {
         type: String,
-        required: true,
+       required: true,
         trim: true,
-        minlength:[3,"Name must be longer than 3 chacater "],
-        maxlenghth: [9,"Name must not be more than 3 chacater  "],
+        minlength:[3,"Name must be longer than 3 character"],
+        maxlenghth: [9,"Name must not be more than 3 character"],
         unique: true
     },
     email: {
@@ -22,15 +22,19 @@ const userModel = new Schema ({
         type:String,
         required: true,
         trim: true,
-        minlength:[8,"Name must be longer than 8 chacater "],
-        maxlenghth: [20,"Name must not be more than 20 chacater  "],
+        minlength:[8,"password must be longer than 8 character "],
+        maxlenghth: [20,"password must not be more than 20 character  "]
     },
+
     profilePhoto: {
         type: Object,
         default: {
             url: "https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_1280.png",
             publicId:null,
         }
+    },
+    confirmed:{
+        type : Boolean
     },
     token: {
         type: String
