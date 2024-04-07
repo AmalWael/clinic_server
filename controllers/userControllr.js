@@ -64,9 +64,9 @@ async function isNameValid(Name)
     if (validator.isEmpty(Name)) {
         return { valid1: false, msg: 'name is require' };
       }
-      const length = validator.isLength(Name,3,9)
+      const length = validator.isLength(Name,3)
       if(!length){
-        return { valid1: false, msg: 'Name must be greater than 3 character and less than 9 character' };
+        return { valid1: false, msg: 'Name must be greater than 3 character ' };
       }
      else{ return { valid1: true };
 }} 
@@ -91,11 +91,11 @@ const { valid1, msg } = await isNameValid(Name);
         async function isPasswordValid(password)
 {
     if (validator.isEmpty(password)) {
-        return { valid2: false, Msg: 'password is require' };
+        return { valid2: false, msg: 'password is require' };
       }
-      const length = validator.isLength(password,8,20)
+      const length = validator.isLength(password,8)
       if(!length){
-        return { valid2: false, Msg: 'password must be greater than 8 character and less than 9 character' };
+        return { valid2: false, Msg: 'password must be greater than 8 character ' };
       }
     
       return { valid2: true };
@@ -106,7 +106,7 @@ const { valid2, Msg } = await isPasswordValid(password);
     // password hashing by bcrypt package
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    
+
     const newUser = new User({
         Name,
         email,
